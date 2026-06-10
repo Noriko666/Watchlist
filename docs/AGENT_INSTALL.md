@@ -2,6 +2,8 @@
 
 Use this file when a user asks an automation agent to install Watchlist from GitHub.
 
+If the user provides a 4-digit PIN, enable the login screen with that PIN and generate a private session secret. If the user does not provide a PIN, ask once whether they want one before installing on a public or shared machine.
+
 ## Repository
 
 ```text
@@ -14,7 +16,22 @@ https://github.com/Noriko666/Watchlist
 - Use Node.js 20 or newer.
 - Keep the SQLite database outside Git tracking.
 - Verify the app with `/api/health` before reporting success.
-- If a PIN is enabled, generate a random `WATCHLIST_SESSION_SECRET`.
+- If a PIN is enabled, use the user's chosen 4-digit PIN and generate a random `WATCHLIST_SESSION_SECRET`.
+
+## Prompt to Give an Agent
+
+Replace `[4-Digit-PIN]` before using this prompt:
+
+```text
+Install https://github.com/Noriko666/Watchlist on this machine.
+Use Node.js 20 or newer.
+Use this private 4-digit Watchlist PIN: [4-Digit-PIN]
+Do not commit or upload .env, data/, SQLite files, private keys, or logs.
+For a Linux VPS, prefer scripts/install-linux-vps.sh and configure a systemd service.
+For Windows local use, run scripts/install-windows.ps1 and start the app with npm start.
+Generate a private WATCHLIST_SESSION_SECRET if the PIN is enabled.
+Verify the app with /api/health and tell me the final URL.
+```
 
 ## Linux VPS Recommended Flow
 
