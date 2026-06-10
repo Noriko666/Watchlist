@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: noriko-watchlist-demo
+    runtime: docker
+    plan: free
+    region: japan
+    repo: https://github.com/Noriko666/Watchlist
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_FILE
+        value: /app/data/watchlist.sqlite
+      - key: TRUST_PROXY
+        value: "true"
