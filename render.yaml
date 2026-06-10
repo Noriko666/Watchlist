@@ -3,7 +3,7 @@ services:
     name: noriko-watchlist-demo
     runtime: docker
     plan: free
-    region: japan
+    region: singapore
     repo: https://github.com/Noriko666/Watchlist
     branch: main
     dockerfilePath: ./Dockerfile
