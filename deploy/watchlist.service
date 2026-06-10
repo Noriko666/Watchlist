@@ -4,12 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/html/watchlist
+User=watchlist
+Group=watchlist
+WorkingDirectory=/opt/watchlist
 Environment=NODE_ENV=production
 EnvironmentFile=/etc/watchlist.env
-ExecStart=/usr/bin/node /var/www/html/watchlist/backend/server.js
+ExecStart=/usr/bin/node /opt/watchlist/backend/server.js
 Restart=always
 RestartSec=5
 NoNewPrivileges=true

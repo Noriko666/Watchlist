@@ -1,251 +1,212 @@
-# Watchlist — 夜のアニメ図書館
+# Watchlist
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
 [![React](https://img.shields.io/badge/React-18-61dafb)](frontend/src)
 
-**Watchlist** ist eine selbst gehostete Anime-Bibliothek mit japanisch inspiriertem Dark-UI, AniList-Integration, SQLite-Persistenz und optionalem PIN-Schutz. Verwalte deine Titel lokal — ohne Account bei einem Tracking-Dienst.
+**Watchlist** is a self-hosted anime library with a React frontend, an Express API, SQLite storage, AniList-powered discovery, and optional PIN protection. It is designed for private local use, a small home server, or a Linux VPS behind nginx.
 
-![Watchlist Grid-Ansicht mit Anime-Postern](docs/screenshots/hero-grid.png)
+No hosted tracking account is required. Your library lives in your own SQLite database.
 
----
-
-## Inhaltsverzeichnis
-
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Tech-Stack](#tech-stack)
-- [Voraussetzungen](#voraussetzungen)
-- [Installation](#installation)
-- [Konfiguration](#konfiguration)
-- [Entwicklung](#entwicklung)
-- [Produktion](#produktion)
-- [Docker](#docker)
-- [Nginx-Reverse-Proxy](#nginx-reverse-proxy)
-- [API-Übersicht](#api-übersicht)
-- [Projektstruktur](#projektstruktur)
-- [Lizenz](#lizenz)
-
----
-
-## Features
-
-### Bibliothek & Status
-
-| Funktion | Beschreibung |
-|----------|--------------|
-| **Kategorien** | Watching, Plan to Watch, Finished, Paused |
-| **Listen- & Grid-Ansicht** | Umschaltbar; Präferenz wird im Browser gespeichert |
-| **Episoden-Fortschritt** | `+` / `−` pro Titel, Fortschrittsbalken, „New Episode“-Badge bei neu ausgestrahlten Folgen |
-| **Drag & Drop** | Reihenfolge innerhalb einer Kategorie ändern oder Titel per Drag in andere Kategorien verschieben |
-| **Kontextmenü** | Rechtsklick: Status ändern, bearbeiten, +1 Episode, löschen |
-| **Details-Modal** | Cover, Synopsis, Cast & Voice-Actors (AniList) |
-
-### AniList-Integration
-
-| Funktion | Beschreibung |
-|----------|--------------|
-| **Suche** | Live-Suche über die AniList-API beim Hinzufügen |
-| **Anime of the Day** | Tägliche Empfehlung basierend auf Genres/Tags deiner Bibliothek |
-| **Next Airing** | Automatische Aktualisierung von Ausstrahlungsterminen |
-| **Top Airing** | Saison-Top-Listen (MAL / AniList) |
-| **Duplikat-Schutz** | Gleicher AniList-Eintrag kann nicht doppelt gespeichert werden |
-
-### Sicherheit & Daten
-
-| Funktion | Beschreibung |
-|----------|--------------|
-| **PIN-Login** | Optionaler 4-stelliger PIN mit Session-Cookie |
-| **Rate Limiting** | Schutz vor Brute-Force (Lockout nach Fehlversuchen) |
-| **SQLite** | Lokale Datenbank mit WAL-Modus |
-| **Import / Export** | JSON-Backup der gesamten Bibliothek |
-| **Cache** | AniList-Antworten werden zeitlich gecacht |
-
-### Design
-
-- **夜のアニメ図書館** — Sumi-Tinte, Shu-Vermilion & Kin-Gold
-- Animierte Sakura-Petals im Hintergrund
-- Shippori Mincho & Zen Kaku Gothic New
-- View Transitions beim Tab-Wechsel (wenn vom Browser unterstützt)
-- Responsives Layout mit Sidebar-Navigation
-
----
+![Watchlist grid view](docs/screenshots/hero-grid.png)
 
 ## Screenshots
 
-### Watching — Listenansicht
+### Watching List
 
-![Watching Listenansicht](docs/screenshots/watching-list.png)
+![Watching list view](docs/screenshots/watching-list.png)
 
-### Discover — Tägliche AniList-Empfehlung
+### Daily Discovery
 
-![Discover Empfehlung](docs/screenshots/discover.png)
+![Daily AniList recommendation](docs/screenshots/discover.png)
 
-### Anime hinzufügen — AniList-Suche
+### Add Anime
 
-![AniList-Suche beim Hinzufügen](docs/screenshots/add-anime.png)
+![AniList search while adding an anime](docs/screenshots/add-anime.png)
 
----
+## Features
 
-## Tech-Stack
+| Area | What it does |
+| --- | --- |
+| Library categories | Organize titles as Watching, Plan to Watch, Finished, or Paused. |
+| List and grid views | Switch between compact list mode and poster grid mode. The choice is saved in the browser. |
+| Episode progress | Increase or decrease watched episodes per title, with progress bars and recent-airing badges. |
+| Drag and drop | Reorder entries inside a category or move titles between categories. |
+| Context menu | Right-click anywhere in the app to add titles, change status, edit progress, or delete entries. |
+| AniList search | Add anime through live AniList search with a Jikan/MAL fallback. |
+| Daily recommendation | Get an "anime of the day" based on the genres and tags in your own library. |
+| Top airing lists | Fetch top currently airing titles from MyAnimeList or AniList trending data. |
+| Details modal | View covers, synopsis, characters, Japanese voice actors, and related voice actor roles. |
+| Import and export | Export your library as JSON and import it again on another install. |
+| Optional PIN lock | Protect the web UI with a 4-digit PIN, signed session cookies, rate limiting, and lockouts. |
+| SQLite persistence | Uses a local SQLite database with WAL mode. No external database server is needed. |
 
-| Schicht | Technologie |
-|---------|-------------|
-| Frontend | React 18, Vite 5, CSS Custom Properties |
-| Backend | Node.js 20+, Express 4 |
-| Datenbank | SQLite via `better-sqlite3` |
-| APIs | AniList GraphQL, MyAnimeList (Top Airing) |
-| Deployment | Docker, nginx, systemd |
+## Requirements
 
----
+Minimum runtime:
 
-## Voraussetzungen
+- Node.js 20 or newer
+- npm 10 or newer
+- A system that can build `better-sqlite3`
 
-- **Node.js** ≥ 20 ([nodejs.org](https://nodejs.org/))
-- **npm** ≥ 10
-- **Build-Tools** für `better-sqlite3`:
-  - **Windows:** [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) mit „Desktop development with C++“
-  - **Linux:** `build-essential`, `python3`
-  - **macOS:** Xcode Command Line Tools (`xcode-select --install`)
+Build tools for `better-sqlite3`:
 
----
+| Platform | Required tools |
+| --- | --- |
+| Windows | Visual Studio Build Tools with "Desktop development with C++" |
+| Debian/Ubuntu VPS | `build-essential` and `python3` |
+| macOS | Xcode Command Line Tools with `xcode-select --install` |
 
-## Installation
+Optional production tools:
 
-### 1. Repository klonen
+- Docker and Docker Compose
+- systemd for Linux service management
+- nginx for a public reverse proxy
+
+## Quick Start
 
 ```bash
 git clone https://github.com/Noriko666/Watchlist.git
 cd Watchlist
-```
-
-### 2. Abhängigkeiten installieren
-
-```bash
 npm install
-```
-
-> **Windows-Hinweis:** Falls der Server mit `Could not locate the bindings file` für `better-sqlite3` abstürzt:
->
-> ```bash
-> npm rebuild better-sqlite3
-> ```
-
-### 3. Umgebungsvariablen einrichten
-
-```bash
 cp .env.example .env
-```
-
-Bearbeite `.env` nach Bedarf (siehe [Konfiguration](#konfiguration)).
-
-### 4. Frontend bauen (für Produktion)
-
-```bash
 npm run build
-```
-
-### 5. Server starten
-
-```bash
 npm start
 ```
 
-Die App ist unter **http://127.0.0.1:4310** erreichbar.
+Open [http://127.0.0.1:4310](http://127.0.0.1:4310).
 
----
+On Windows PowerShell, use this instead of `cp`:
 
-## Konfiguration
+```powershell
+Copy-Item .env.example .env
+```
 
-Kopiere `.env.example` nach `.env` und passe die Werte an:
+## Windows Local Setup
 
-| Variable | Standard | Beschreibung |
-|----------|----------|--------------|
-| `NODE_ENV` | `production` | `development` oder `production` |
-| `PORT` | `4310` | HTTP-Port des Servers |
-| `HOST` | `127.0.0.1` | Bind-Adresse (`0.0.0.0` für Netzwerk-Zugriff) |
-| `DATABASE_FILE` | `./data/watchlist.sqlite` | Pfad zur SQLite-Datei |
-| `WATCHLIST_PASSWORD` | *(leer)* | 4-stelliger PIN; leer = kein Login |
-| `WATCHLIST_SESSION_SECRET` | *(leer)* | Zufälliger String (≥ 32 Zeichen), **Pflicht wenn PIN gesetzt** |
-| `CACHE_TTL_HOURS` | `24` | AniList-Cache-Gültigkeit |
-| `TRUST_PROXY` | `loopback` | Setze auf `true` hinter nginx |
+The Windows helper checks Node.js, creates `.env` if missing, installs dependencies, and builds the frontend:
 
-### PIN-Schutz aktivieren (empfohlen für öffentliche Deployments)
+```powershell
+git clone https://github.com/Noriko666/Watchlist.git
+cd Watchlist
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1
+npm start
+```
+
+To start the app automatically after setup:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Start
+```
+
+For development mode with Vite hot reload:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1 -Dev
+```
+
+## Linux VPS Install Wizard
+
+For a Debian or Ubuntu VPS, clone the repo and run the interactive installer:
+
+```bash
+git clone https://github.com/Noriko666/Watchlist.git
+cd Watchlist
+sudo bash scripts/install-linux-vps.sh
+```
+
+The wizard can:
+
+- install required Linux build packages
+- optionally install Node.js 20 with NodeSource if Node is missing
+- copy the app to `/opt/watchlist` by default
+- create a dedicated `watchlist` system user
+- generate `/etc/watchlist.env`
+- install a systemd service
+- build the frontend
+- start and verify the service
+- optionally create a basic nginx site for `/watchlist/`
+
+Non-interactive example for agents or repeatable installs:
+
+```bash
+sudo env \
+  ASSUME_YES=1 \
+  INSTALL_NODE=1 \
+  APP_DIR=/opt/watchlist \
+  APP_PORT=4310 \
+  APP_HOST=127.0.0.1 \
+  WATCHLIST_PASSWORD='<choose-a-4-digit-pin>' \
+  CONFIGURE_NGINX=1 \
+  PUBLIC_PATH=/watchlist/ \
+  bash scripts/install-linux-vps.sh
+```
+
+Do not use a demo PIN on a public server. Choose a private 4-digit PIN and let the installer generate `WATCHLIST_SESSION_SECRET`.
+
+After installation:
+
+```bash
+systemctl status watchlist --no-pager
+curl http://127.0.0.1:4310/api/health
+```
+
+## Docker
+
+```bash
+git clone https://github.com/Noriko666/Watchlist.git
+cd Watchlist
+cp .env.example .env
+# Edit .env before exposing the app publicly.
+docker compose up -d --build
+```
+
+The container listens on port `4310`. The SQLite database is stored in `./data`.
+
+## Manual Production Install
+
+```bash
+git clone https://github.com/Noriko666/Watchlist.git /opt/watchlist
+cd /opt/watchlist
+npm ci
+npm run build
+npm prune --omit=dev
+sudo useradd --system --user-group --home-dir /opt/watchlist --shell /usr/sbin/nologin watchlist
+sudo chown -R watchlist:watchlist /opt/watchlist
+sudo cp deploy/watchlist.service /etc/systemd/system/watchlist.service
+sudo cp .env.example /etc/watchlist.env
+sudo systemctl daemon-reload
+sudo systemctl enable --now watchlist
+```
+
+Edit `/etc/watchlist.env` before public use.
+
+Example production environment:
 
 ```env
 NODE_ENV=production
 HOST=127.0.0.1
 PORT=4310
-WATCHLIST_PASSWORD=1234
-WATCHLIST_SESSION_SECRET=ein-langer-zufaelliger-string-mindestens-32-zeichen
+DATABASE_FILE=/opt/watchlist/data/watchlist.sqlite
+CACHE_TTL_HOURS=24
 TRUST_PROXY=true
+WATCHLIST_PASSWORD=<choose-a-4-digit-pin>
+WATCHLIST_SESSION_SECRET=replace-with-a-random-secret-at-least-32-characters
+SESSION_COOKIE_NAME=watchlist_session
+SESSION_COOKIE_PATH=/
 ```
 
-> `WATCHLIST_SESSION_SECRET` darf **nicht** gleich dem PIN sein und darf nicht der Platzhalter `change-me-before-public-use` sein.
+Replace the example PIN and secret. The server refuses to start if the PIN is set but the session secret is missing, equal to the PIN, or still set to the placeholder value.
 
----
+## nginx Reverse Proxy
 
-## Entwicklung
-
-Startet Backend (Port 4310) und Vite-Dev-Server (Port 5173) parallel:
-
-```bash
-npm run dev
-```
-
-Öffne **http://localhost:5173** — API-Anfragen werden automatisch an den Backend-Port weitergeleitet.
-
-| Befehl | Beschreibung |
-|--------|--------------|
-| `npm run dev` | Backend + Frontend parallel |
-| `npm run dev:server` | Nur Express mit Nodemon |
-| `npm run dev:client` | Nur Vite |
-| `npm run build` | Produktions-Build nach `dist/` |
-| `npm run assets` | Platzhalter-PNGs für `frontend/public/anime-ui/` erzeugen |
-| `npm start` | Produktionsserver (benötigt `dist/`) |
-
----
-
-## Produktion
-
-### Manuell
-
-```bash
-npm ci
-npm run build
-NODE_ENV=production node backend/server.js
-```
-
-### systemd (Linux)
-
-Beispiel-Unit liegt unter `deploy/watchlist.service`:
-
-```bash
-sudo cp deploy/watchlist.service /etc/systemd/system/
-# EnvironmentFile anlegen, z. B. /etc/watchlist.env
-sudo systemctl enable --now watchlist
-```
-
----
-
-## Docker
-
-```bash
-cp .env.example .env
-# .env anpassen (PIN + Secret setzen!)
-
-docker compose up -d --build
-```
-
-Die App läuft auf Port **4310**. Daten werden in `./data` gemountet.
-
----
-
-## Nginx-Reverse-Proxy
-
-Beispiel-Konfiguration: `deploy/nginx.watchlist.conf` — Unterpfad `/watchlist/`
+The example in [deploy/nginx.watchlist.conf](deploy/nginx.watchlist.conf) exposes the app under `/watchlist/`:
 
 ```nginx
+location = /watchlist {
+    return 301 /watchlist/;
+}
+
 location ^~ /watchlist/ {
     proxy_pass http://127.0.0.1:4310/;
     proxy_http_version 1.1;
@@ -256,65 +217,161 @@ location ^~ /watchlist/ {
 }
 ```
 
-Setze in `.env`: `TRUST_PROXY=true`
+Use `TRUST_PROXY=true` when the app is behind nginx.
 
----
+## Configuration
 
-## API-Übersicht
+Copy `.env.example` to `.env` for local use, or copy it to `/etc/watchlist.env` for the systemd service.
 
-| Methode | Endpunkt | Beschreibung |
-|---------|----------|--------------|
-| `GET` | `/api/health` | Health-Check |
-| `GET` | `/api/auth/session` | Session-Status |
-| `POST` | `/api/auth/login` | PIN-Login |
-| `POST` | `/api/auth/logout` | Abmelden |
-| `GET` | `/api/anime` | Alle Einträge |
-| `POST` | `/api/anime` | Eintrag anlegen |
-| `PATCH` | `/api/anime/:id` | Eintrag aktualisieren |
-| `DELETE` | `/api/anime/:id` | Eintrag löschen |
-| `POST` | `/api/anime/reorder` | Reihenfolge ändern |
-| `GET` | `/api/search?query=` | AniList-Suche |
-| `GET` | `/api/anime-of-the-day` | Tagesempfehlung |
-| `GET` | `/api/anime/:id/characters` | Charaktere |
-| `GET` | `/api/staff/:id/top-roles` | Voice-Actor-Rollen |
-| `GET` | `/api/season-top-airing` | Top Airing |
-| `GET` | `/api/export` | JSON-Export |
-| `POST` | `/api/import` | JSON-Import |
+| Variable | Default | Description |
+| --- | --- | --- |
+| `NODE_ENV` | `production` | `production` or `development`. |
+| `PORT` | `4310` | HTTP port used by the Express server. |
+| `HOST` | `127.0.0.1` | Bind address. Use `0.0.0.0` only if you understand the exposure. |
+| `DATABASE_FILE` | `./data/watchlist.sqlite` | SQLite database path. |
+| `CACHE_TTL_HOURS` | `24` | AniList search cache lifetime. |
+| `REQUEST_TIMEOUT_MS` | `12000` | Timeout for external API calls. |
+| `NEXT_AIRING_REFRESH_TTL_MS` | `900000` | Minimum time between next-airing refreshes. |
+| `TRUST_PROXY` | `loopback` | Express trust-proxy setting. Use `true` behind nginx. |
+| `WATCHLIST_PASSWORD` | empty | Optional 4-digit PIN. Empty means no login screen. |
+| `WATCHLIST_SESSION_SECRET` | empty | Required when `WATCHLIST_PASSWORD` is set. Use a random 32+ character value. |
+| `SESSION_COOKIE_NAME` | `watchlist_session` | Session cookie name. |
+| `SESSION_COOKIE_PATH` | `/` | Cookie path. Use `/watchlist/` if you want a narrower subpath cookie. |
+| `AUTH_RATE_WINDOW_MS` | `60000` | Login rate-limit window. |
+| `AUTH_RATE_MAX_REQUESTS` | `20` | Max login attempts per rate-limit window. |
+| `AUTH_FAILURE_MAX_ATTEMPTS` | `6` | Failed PIN attempts before lockout. |
+| `AUTH_LOCKOUT_DURATION_MS` | `900000` | Lockout duration after too many failures. |
 
----
+## Data, Privacy, and Safety
 
-## Projektstruktur
+The repository is prepared so personal runtime data is not committed:
 
+- `.env` and `.env.*` are ignored, except `.env.example`
+- `data/` is ignored
+- SQLite files are ignored
+- private key-like files such as `.ppk`, `.pem`, and `.key` are ignored
+- `node_modules/` and `dist/` are ignored
+
+The app stores your anime library in SQLite. If you want to move or back up an install, copy the configured database file or use the JSON export in the web UI.
+
+## Agent Install Instructions
+
+If you want another coding agent to install this for you, give it this prompt:
+
+```text
+Install https://github.com/Noriko666/Watchlist on this machine.
+Use Node.js 20 or newer.
+Do not commit or upload .env, data/, SQLite files, private keys, or logs.
+For a Linux VPS, prefer scripts/install-linux-vps.sh and configure a systemd service.
+For Windows local use, run scripts/install-windows.ps1 and start the app with npm start.
+Verify the app with /api/health and tell me the final URL.
 ```
+
+More detailed automation notes are in [docs/AGENT_INSTALL.md](docs/AGENT_INSTALL.md).
+
+## Development
+
+```bash
+npm run dev
+```
+
+This starts:
+
+- Express API on port `4310`
+- Vite dev server on port `5173`
+
+Open [http://localhost:5173](http://localhost:5173). API requests are proxied to the backend.
+
+Useful scripts:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start backend and frontend dev server together. |
+| `npm run dev:server` | Start only the Express backend with nodemon. |
+| `npm run dev:client` | Start only the Vite frontend. |
+| `npm run build` | Build the frontend into `dist/`. |
+| `npm run assets` | Generate placeholder UI assets. |
+| `npm start` | Start the production Express server. |
+
+## API Summary
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/health` | Health check. |
+| `GET` | `/api/auth/session` | Current auth state. |
+| `POST` | `/api/auth/login` | PIN login. |
+| `POST` | `/api/auth/logout` | Log out and clear the session cookie. |
+| `GET` | `/api/anime` | List all entries. |
+| `GET` | `/api/anime/:id` | Get one entry. |
+| `POST` | `/api/anime` | Create an entry. |
+| `PATCH` | `/api/anime/:id` | Update an entry. |
+| `DELETE` | `/api/anime/:id` | Delete an entry. |
+| `POST` | `/api/anime/reorder` | Save category order. |
+| `GET` | `/api/search?query=` | Search AniList/Jikan. |
+| `GET` | `/api/anime-of-the-day` | Daily recommendation. |
+| `GET` | `/api/anime/:id/characters` | Character and voice actor data. |
+| `GET` | `/api/staff/:id/top-roles` | Voice actor role data. |
+| `GET` | `/api/season-top-airing` | MyAnimeList top airing list. |
+| `GET` | `/api/season-top-airing/24h` | AniList trending airing list. |
+| `GET` | `/api/export` | Export JSON backup. |
+| `POST` | `/api/import` | Import JSON backup. |
+
+## Project Structure
+
+```text
 Watchlist/
-├── backend/
-│   ├── server.js          # Express-Server & API-Routen
-│   ├── db.js              # SQLite-Schema & Queries
-│   ├── anilist.js         # AniList GraphQL-Client
-│   ├── mal.js             # MAL Top-Airing
-│   └── utils.js           # Hilfsfunktionen
-├── frontend/
-│   ├── src/
-│   │   ├── components/    # React-Komponenten
-│   │   ├── lib/           # API-Client, Konstanten, Utils
-│   │   └── styles/        # CSS Design System
-│   └── public/anime-ui/   # UI-Assets
-├── deploy/                # nginx & systemd Beispiele
-├── docs/screenshots/      # README-Screenshots
-├── scripts/               # Hilfsskripte
-├── docker-compose.yml
-├── Dockerfile
-└── package.json
+|-- backend/                 Express API, SQLite, AniList/MAL clients
+|-- frontend/                React app, styles, UI assets
+|-- deploy/                  Example systemd and nginx files
+|-- docs/screenshots/        README screenshots
+|-- scripts/                 Setup helpers and asset scripts
+|-- docker-compose.yml       Docker Compose service
+|-- Dockerfile               Production image
+|-- package.json             Node scripts and dependencies
+`-- README.md
 ```
 
----
+## Updating an Existing VPS Install
 
-## Lizenz
+If you installed with the wizard and used `/opt/watchlist`:
 
-MIT — siehe [LICENSE](LICENSE).
+```bash
+cd /opt/watchlist
+sudo git pull
+sudo npm ci
+sudo npm run build
+sudo npm prune --omit=dev
+sudo chown -R watchlist:watchlist /opt/watchlist
+sudo systemctl restart watchlist
+curl http://127.0.0.1:4310/api/health
+```
 
----
+Back up your database first if the server holds important data.
 
-<p align="center">
-  <strong>観</strong> — Watch with intention.
-</p>
+## Troubleshooting
+
+### `better-sqlite3` fails to install
+
+Install the platform build tools from the requirements section, then run:
+
+```bash
+npm rebuild better-sqlite3
+```
+
+### The page loads but API calls fail
+
+Check that the backend is running:
+
+```bash
+curl http://127.0.0.1:4310/api/health
+```
+
+If you use nginx, confirm `proxy_pass` points to the same `HOST` and `PORT` configured for the app.
+
+### The login cookie does not stick behind a subpath
+
+Keep `SESSION_COOKIE_PATH=/` for the simplest setup. If you change it to a subpath, make sure it exactly matches your public path, for example `/watchlist/`.
+
+## License
+
+MIT - see [LICENSE](LICENSE).
