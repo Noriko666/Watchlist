@@ -1,7 +1,7 @@
 services:
   watchlist:
     build: .
-    container_name: anime-watchlist
+    container_name: watchlist
     restart: unless-stopped
     ports:
       - "4310:4310"

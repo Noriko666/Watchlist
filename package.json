@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "type": "module",
-  "description": "Self-hosted anime watchlist with AniList search, React frontend, Express backend and SQLite persistence.",
+  "description": "Watchlist — self-hosted anime library with AniList search, React frontend, Express backend and SQLite persistence.",
   "engines": {
     "node": ">=20.0.0"
   },

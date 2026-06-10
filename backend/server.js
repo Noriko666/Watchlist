@@ -689,7 +689,7 @@ app.get("/api/export", requireAuth, (req, res) => {
   const entries = listEntries(db);
   res.set({
     "Content-Type": "application/json",
-    "Content-Disposition": 'attachment; filename="anime-watchlist-export.json"'
+    "Content-Disposition": 'attachment; filename="watchlist-export.json"'
   });
   res.json({
     version: 1,
@@ -755,5 +755,5 @@ if (fs.existsSync(distDir)) {
 }
 
 app.listen(PORT, HOST, () => {
-  console.log(`Anime Watchlist listening on http://${HOST}:${PORT}`);
+  console.log(`Watchlist listening on http://${HOST}:${PORT}`);
 });

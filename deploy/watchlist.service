@@ -1,5 +1,5 @@
 [Unit]
-Description=Anime Watchlist
+Description=Watchlist
 After=network.target
 
 [Service]

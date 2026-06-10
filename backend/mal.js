@@ -9,7 +9,7 @@ const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 const JIKAN_USER_AGENT =
-  "Anime Watchlist/1.0 (+https://github.com/Noriko666/Watchlist)";
+  "Watchlist/1.0 (+https://github.com/Noriko666/Watchlist)";
 
 export async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
   const controller = new AbortController();

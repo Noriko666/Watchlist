@@ -4,7 +4,7 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
 [![React](https://img.shields.io/badge/React-18-61dafb)](frontend/src)
 
-Eine selbst gehostete Anime-Watchlist mit japanisch inspiriertem Dark-UI, AniList-Integration, SQLite-Persistenz und optionalem PIN-Schutz. Verwalte deine Bibliothek lokal — ohne Account bei einem Tracking-Dienst.
+**Watchlist** ist eine selbst gehostete Anime-Bibliothek mit japanisch inspiriertem Dark-UI, AniList-Integration, SQLite-Persistenz und optionalem PIN-Schutz. Verwalte deine Titel lokal — ohne Account bei einem Tracking-Dienst.
 
 ![Watchlist Grid-Ansicht mit Anime-Postern](docs/screenshots/hero-grid.png)
 
