@@ -84,7 +84,7 @@ If you want another coding agent to install Watchlist for you, give it this prom
 Install https://github.com/Noriko666/Watchlist on this machine.
 Use Node.js 20 or newer.
 Use this private 4-digit Watchlist PIN: [4-Digit-PIN]
-Do not commit or upload .env, data/, SQLite files, private keys, or logs.
+Keep .env, data/, SQLite files, private keys, and logs local and private.
 For a Linux VPS, prefer scripts/install-linux-vps.sh and configure a systemd service.
 For Windows local use, run scripts/install-windows.ps1 and start the app with npm start.
 Generate a private WATCHLIST_SESSION_SECRET if the PIN is enabled.

@@ -12,7 +12,7 @@ https://github.com/Noriko666/Watchlist
 
 ## Safety Rules
 
-- Do not upload or commit `.env`, `.env.*`, `data/`, SQLite files, logs, private keys, or deployment credentials.
+- Keep `.env`, `.env.*`, `data/`, SQLite files, logs, private keys, and deployment credentials local and private.
 - Use Node.js 20 or newer.
 - Keep the SQLite database outside Git tracking.
 - Verify the app with `/api/health` before reporting success.
@@ -26,7 +26,7 @@ Replace `[4-Digit-PIN]` before using this prompt:
 Install https://github.com/Noriko666/Watchlist on this machine.
 Use Node.js 20 or newer.
 Use this private 4-digit Watchlist PIN: [4-Digit-PIN]
-Do not commit or upload .env, data/, SQLite files, private keys, or logs.
+Keep .env, data/, SQLite files, private keys, and logs local and private.
 For a Linux VPS, prefer scripts/install-linux-vps.sh and configure a systemd service.
 For Windows local use, run scripts/install-windows.ps1 and start the app with npm start.
 Generate a private WATCHLIST_SESSION_SECRET if the PIN is enabled.
