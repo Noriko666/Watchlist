@@ -1,0 +1,11 @@
+services:
+  watchlist:
+    build: .
+    container_name: anime-watchlist
+    restart: unless-stopped
+    ports:
+      - "4310:4310"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data

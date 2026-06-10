@@ -1,0 +1,18 @@
+[Unit]
+Description=Anime Watchlist
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/watchlist
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/watchlist.env
+ExecStart=/usr/bin/node /var/www/html/watchlist/backend/server.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

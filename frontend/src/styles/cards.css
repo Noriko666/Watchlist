@@ -1,0 +1,543 @@
+/* ============================================================
+   Anime cards: list rows, grid tiles, progress ink, drag ghost
+   ============================================================ */
+
+/* ---------- Shared cover treatment ---------- */
+
+.anime-cover {
+  position: relative;
+  overflow: hidden;
+  background: var(--sumi-3);
+}
+
+.anime-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--ease-out);
+  will-change: transform;
+}
+
+/* Diagonal shine sweep on hover */
+.anime-cover-shine {
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 247, 239, 0.14) 48%,
+    rgba(255, 247, 239, 0.05) 54%,
+    transparent 62%
+  );
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+
+/* Hanko seal badge — "new episode" */
+.hanko-badge {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6f4e, var(--shu-deep));
+  color: #fff7ef;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transform: rotate(-8deg);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1.5px rgba(255, 247, 239, 0.35);
+  animation: hanko-stamp 0.5s var(--ease-spring) both;
+}
+
+@keyframes hanko-stamp {
+  0% {
+    transform: rotate(-8deg) scale(1.8);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-8deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Ink progress bar ---------- */
+
+.ink-progress {
+  position: relative;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(236, 233, 226, 0.07);
+  overflow: hidden;
+}
+
+.ink-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--shu-deep) 0%,
+    var(--shu) 60%,
+    var(--shu-bright) 100%
+  );
+  transition: width 0.6s var(--ease-spring);
+}
+
+/* glowing brush tip at the end of the stroke */
+.ink-progress-fill::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: var(--shu-bright);
+  box-shadow: 0 0 8px 1px rgba(255, 122, 92, 0.8);
+}
+
+/* ---------- Episode stepper ---------- */
+
+.ep-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--sumi-2);
+  border: 1px solid var(--line-strong);
+}
+
+.ep-stepper button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.3s var(--ease-spring);
+}
+
+.ep-stepper button:hover:not(:disabled) {
+  background: rgba(228, 87, 58, 0.16);
+  color: var(--shu-bright);
+}
+
+.ep-stepper button:active:not(:disabled) {
+  transform: scale(0.85);
+}
+
+.ep-stepper button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ep-stepper-value {
+  min-width: 2em;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text);
+  animation: number-roll 0.32s var(--ease-spring) both;
+}
+
+@keyframes number-roll {
+  0% {
+    transform: translateY(-9px);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* ---------- Card icon buttons (drag / delete) ---------- */
+
+.card-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(16, 20, 31, 0.72);
+  color: var(--text-faint);
+  font-size: 0.95rem;
+  line-height: 1;
+  backdrop-filter: blur(4px);
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.3s var(--ease-spring);
+}
+
+.card-icon-btn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.card-drag {
+  cursor: grab;
+  touch-action: none;
+}
+
+.card-drag:active {
+  cursor: grabbing;
+}
+
+.card-delete:hover {
+  color: var(--shu-bright);
+  border-color: rgba(228, 87, 58, 0.5);
+  background: rgba(228, 87, 58, 0.12);
+}
+
+.card-delete.is-armed {
+  color: #fff7ef;
+  background: var(--shu);
+  border-color: var(--shu-bright);
+  animation: delete-armed 0.9s ease-in-out infinite;
+}
+
+@keyframes delete-armed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(228, 87, 58, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(228, 87, 58, 0);
+  }
+}
+
+.anime-airing {
+  color: var(--kin);
+}
+
+/* ============================================================
+   LIST ROW
+   ============================================================ */
+
+.anime-row {
+  --cat: var(--text-dim);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.8rem 0.55rem 0.55rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(165deg, var(--sumi-2) 0%, var(--sumi-1) 130%);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition:
+    transform 0.4s var(--ease-spring),
+    border-color 0.25s ease,
+    box-shadow 0.3s ease,
+    opacity 0.2s ease;
+}
+
+.anime-row.cat-watching { --cat: var(--cat-watching); }
+.anime-row.cat-on_hold { --cat: var(--cat-on_hold); }
+.anime-row.cat-finished { --cat: var(--cat-finished); }
+.anime-row.cat-canceled { --cat: var(--cat-canceled); }
+
+.anime-row:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--cat) 35%, transparent);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 0 1px color-mix(in srgb, var(--cat) 14%, transparent);
+}
+
+.anime-row:hover .anime-cover img {
+  transform: scale(1.08);
+}
+
+.anime-row:hover .anime-cover-shine {
+  transition: transform 0.7s ease;
+  transform: translateX(110%);
+}
+
+.anime-row-poster {
+  width: 52px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.anime-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.anime-row-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.anime-row-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anime-row-meta {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
+.anime-row .ink-progress {
+  max-width: 420px;
+}
+
+.anime-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   GRID TILE
+   ============================================================ */
+
+.anime-tile {
+  --cat: var(--text-dim);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  background: linear-gradient(170deg, var(--sumi-2) 0%, var(--sumi-1) 140%);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.45s var(--ease-spring),
+    border-color 0.25s ease,
+    box-shadow 0.3s ease,
+    opacity 0.2s ease;
+}
+
+.anime-tile.cat-watching { --cat: var(--cat-watching); }
+.anime-tile.cat-on_hold { --cat: var(--cat-on_hold); }
+.anime-tile.cat-finished { --cat: var(--cat-finished); }
+.anime-tile.cat-canceled { --cat: var(--cat-canceled); }
+
+.anime-tile:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--cat) 40%, transparent);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--cat) 16%, transparent);
+}
+
+.anime-tile-cover {
+  aspect-ratio: 2 / 2.75;
+}
+
+.anime-tile:hover .anime-cover img {
+  transform: scale(1.07) translateY(-1.5%);
+}
+
+.anime-tile:hover .anime-cover-shine {
+  transition: transform 0.75s ease;
+  transform: translateX(110%);
+}
+
+.anime-tile-progress {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  background: rgba(6, 8, 14, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.anime-tile-overlay {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 3;
+  display: flex;
+  gap: 0.35rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.22s ease, transform 0.3s var(--ease-out);
+}
+
+.anime-tile:hover .anime-tile-overlay,
+.anime-tile.is-dragging-source .anime-tile-overlay {
+  opacity: 1;
+  transform: none;
+}
+
+.anime-tile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0.65rem 0.7rem;
+}
+
+.anime-tile-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.4em;
+}
+
+.anime-tile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.anime-tile-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  min-height: 30px;
+}
+
+.anime-tile-controls:empty {
+  display: none;
+}
+
+.anime-continue {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.74rem;
+}
+
+/* ---------- Drag states ---------- */
+
+.is-dragging-source {
+  opacity: 0.32;
+  filter: saturate(0.4);
+  transform: scale(0.985);
+}
+
+.is-drag-target {
+  border-color: color-mix(in srgb, var(--cat) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cat) 40%, transparent);
+}
+
+/* ---------- Drag ghost (follows pointer, tilts with velocity) ---------- */
+
+.drag-ghost {
+  position: fixed;
+  z-index: 95;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.45rem;
+  border-radius: 12px;
+  background: rgba(22, 27, 42, 0.92);
+  border: 1px solid rgba(228, 87, 58, 0.45);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(228, 87, 58, 0.18);
+  backdrop-filter: blur(10px);
+  transform: rotate(var(--tilt, 0deg));
+  transform-origin: 20% 20%;
+  max-width: 280px;
+}
+
+.drag-ghost img {
+  width: 38px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 7px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.drag-ghost span {
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drag-ghost-grid img {
+  width: 44px;
+  height: 60px;
+}
+
+.drag-ghost-pickup {
+  animation: ghost-pickup 0.34s var(--ease-spring) both;
+}
+
+@keyframes ghost-pickup {
+  0% {
+    transform: rotate(var(--tilt, 0deg)) scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(var(--tilt, 0deg)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 640px) {
+  .anime-row {
+    flex-wrap: wrap;
+  }
+
+  .anime-row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .library-grid {
+    grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+    gap: 0.65rem;
+  }
+}

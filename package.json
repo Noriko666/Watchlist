@@ -1,0 +1,37 @@
+{
+  "name": "watchlist",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "Self-hosted anime watchlist with AniList search, React frontend, Express backend and SQLite persistence.",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "nodemon backend/server.js",
+    "dev:client": "vite --config frontend/vite.config.js --host 0.0.0.0",
+    "build": "vite build --config frontend/vite.config.js",
+    "assets": "node scripts/generate-placeholders.mjs",
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "@fontsource/shippori-mincho": "^5.2.8",
+    "@fontsource/zen-kaku-gothic-new": "^5.2.7",
+    "better-sqlite3": "^11.10.0",
+    "compression": "^1.8.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.10",
+    "vite": "^5.4.19"
+  }
+}
