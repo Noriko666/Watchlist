@@ -4,6 +4,8 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
 [![React](https://img.shields.io/badge/React-18-61dafb)](frontend/src)
 
+*Live-Demo* https://noriko-watchlist-demo.onrender.com/
+
 **Watchlist** is a self-hosted anime library with a React frontend, an Express API, SQLite storage, AniList-powered discovery, and optional PIN protection. It is designed for private local use, a small home server, or a Linux VPS behind nginx.
 
 No hosted tracking account is required. Your library lives in your own SQLite database.
