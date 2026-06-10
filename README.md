@@ -6,7 +6,7 @@
 
 *Live Demo:* https://noriko-watchlist-demo.onrender.com/
 
-**Watchlist** is a small self-hosted anime watchlist. Add titles, track episodes, sort them into Watching, Plan to Watch, Finished, or Paused, and keep the data on your own machine.
+**Watchlist** is a small self-hosted anime watchlist powered by MyAnimeList and AniList data. Add titles, track episodes, sort them into Watching, Plan to Watch, Finished, or Paused, and keep the data on your own machine.
 
 No account is required. Your library is stored locally.
 
